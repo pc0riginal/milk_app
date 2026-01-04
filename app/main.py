@@ -36,16 +36,11 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
     await close_mongo_connection()
 
-from .static_config import setup_static_files
-
 app = FastAPI(lifespan=lifespan)
 
-# Setup static files for production
-setup_static_files(app)
-
-# Templates configuration
-templates_path = os.path.join(os.path.dirname(__file__), "templates")
-templates = Jinja2Templates(directory=templates_path)
+# Simple static files mount - production fix
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+templates = Jinja2Templates(directory="app/templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -386,3 +381,16 @@ async def generate_and_save_monthly_pdf():
         print(f"Monthly PDF generated: {filename}")
     except Exception as e:
         print(f"Failed to generate monthly PDF: {str(e)}")
+@app.get("/debug/static")
+async def debug_static():
+    import os
+    static_path = "app/static"
+    css_path = "app/static/css"
+    
+    return {
+        "static_exists": os.path.exists(static_path),
+        "css_exists": os.path.exists(css_path),
+        "static_files": os.listdir(static_path) if os.path.exists(static_path) else [],
+        "css_files": os.listdir(css_path) if os.path.exists(css_path) else [],
+        "working_dir": os.getcwd()
+    }
