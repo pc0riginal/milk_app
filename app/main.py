@@ -36,10 +36,10 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
     await close_mongo_connection()
 
-app = FastAPI(lifespan=lifespan)
-
-# Simple static files mount - production fix
+# Static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# Templates
 templates = Jinja2Templates(directory="app/templates")
 
 @app.get("/", response_class=HTMLResponse)
