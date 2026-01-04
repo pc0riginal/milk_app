@@ -36,9 +36,16 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
     await close_mongo_connection()
 
+from .static_config import setup_static_files
+
 app = FastAPI(lifespan=lifespan)
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-templates = Jinja2Templates(directory="app/templates")
+
+# Setup static files for production
+setup_static_files(app)
+
+# Templates configuration
+templates_path = os.path.join(os.path.dirname(__file__), "templates")
+templates = Jinja2Templates(directory=templates_path)
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
