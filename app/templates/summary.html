@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Monthly Summary</h2>
+    <form method="GET" style="margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px;">
+            {% if available_months %}
+            <select name="month_year" class="form-control" style="flex: 1;" onchange="this.form.submit()">
+                {% for month_data in available_months %}
+                <option value="{{ month_data.month }}-{{ month_data.year }}" {% if month_data.month == selected_month and month_data.year == selected_year %}selected{% endif %}>
+                    {{ ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month_data.month-1] }} {{ month_data.year }}
+                </option>
+                {% endfor %}
+            </select>
+            {% else %}
+            <p style="color: #6c757d;">No purchases found</p>
+            {% endif %}
+        </div>
+    </form>
+    
+    {% if monthly_purchases %}
+    <div class="summary-item">
+        <span class="summary-label">Total Quantity</span>
+        <span class="summary-value">{{ total_quantity }}L</span>
+    </div>
+    <div class="summary-item">
+        <span class="summary-label">Total Cost</span>
+        <span class="summary-value">₹{{ "%.2f"|format(total_cost) }}</span>
+    </div>
+    <div class="summary-item">
+        <span class="summary-label">Total Purchases</span>
+        <span class="summary-value">{{ monthly_purchases|length }}</span>
+    </div>
+    <div class="summary-item" style="border-bottom: none; padding-top: 20px;">
+        <a href="/download-pdf/{{ selected_month }}-{{ selected_year }}" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            📄 Download PDF Summary
+        </a>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #6c757d; padding: 20px;">No purchases found for this month.</p>
+    {% endif %}
+</div>
+
+{% if person_costs %}
+<div class="card">
+    <h2>Cost Breakdown by Person</h2>
+    {% for person, cost in person_costs.items() %}
+    <div class="summary-item">
+        <span class="summary-label">{{ person }}</span>
+        <span class="summary-value">₹{{ "%.2f"|format(cost) }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if calendar_data %}
+<div class="card">
+    <h2>Calendar View</h2>
+    <div class="calendar">
+        <div class="calendar-header">
+            <div class="calendar-day">Sun</div>
+            <div class="calendar-day">Mon</div>
+            <div class="calendar-day">Tue</div>
+            <div class="calendar-day">Wed</div>
+            <div class="calendar-day">Thu</div>
+            <div class="calendar-day">Fri</div>
+            <div class="calendar-day">Sat</div>
+        </div>
+        <div class="calendar-body">
+            {% for week in calendar_data %}
+            <div class="calendar-week">
+                {% for day in week %}
+                <div class="calendar-cell {% if day.purchases %}has-purchases{% endif %} {% if not day.in_month %}other-month{% endif %}">
+                    <div class="calendar-date">{{ day.day }}</div>
+                    {% if day.purchases %}
+                    <div class="calendar-purchases">
+                        {% for person, data in day.purchases.items() %}
+                        <div class="person-purchase" title="{{ person }}: {{ data.quantity }}L - ₹{{ data.cost }}">
+                            <span class="person-name">{{ person[:3] }}</span>
+                            <span class="purchase-amount">{{ data.quantity }}L</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if monthly_purchases %}
+<div class="card">
+    <h2>Purchase History</h2>
+    {% for purchase in monthly_purchases %}
+    <div class="purchase-item">
+        <div class="purchase-date">{{ purchase.date.strftime('%Y-%m-%d %H:%M') }}</div>
+        <div class="purchase-details">
+            <div class="purchase-info">
+                <div>{{ purchase.quantity }}L @ ₹{{ purchase.price_per_liter }}/L</div>
+                <div class="people-list">
+                    <span class="person-tag">{{ purchase.person }}</span>
+                </div>
+            </div>
+            <div class="purchase-cost">₹{{ "%.2f"|format(purchase.total_cost) }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<style>
+.calendar {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f8f9fa;
+}
+
+.calendar-day {
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-right: 1px solid #ddd;
+}
+
+.calendar-day:last-child {
+    border-right: none;
+}
+
+.calendar-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-cell {
+    min-height: 80px;
+    padding: 5px;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+.calendar-cell:last-child {
+    border-right: none;
+}
+
+.calendar-date {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.other-month {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.has-purchases {
+    background: #e8f5e8;
+}
+
+.calendar-purchases {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.person-purchase {
+    background: #007bff;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 10px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.person-name {
+    font-weight: bold;
+}
+
+.purchase-amount {
+    font-size: 9px;
+}
+</style>
+{% endblock %}

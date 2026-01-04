@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Today's Summary</h2>
+    <div class="summary-item">
+        <span class="summary-label">Total Quantity</span>
+        <span class="summary-value">{{ daily_summary.total_quantity }}L</span>
+    </div>
+    <div class="summary-item">
+        <span class="summary-label">Total Cost</span>
+        <span class="summary-value">₹{{ "%.2f"|format(daily_summary.total_cost) }}</span>
+    </div>
+    <div class="summary-item">
+        <span class="summary-label">Purchases</span>
+        <span class="summary-value">{{ daily_summary.purchases|length }}</span>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Recent Purchases</h2>
+    {% if recent_purchases %}
+        {% for purchase in recent_purchases %}
+        <div class="purchase-item">
+            <div class="purchase-header">
+                <div class="purchase-person">{{ purchase.person }}</div>
+                <div class="purchase-date">{{ purchase.date.strftime('%d %b, %Y') }}</div>
+            </div>
+            <div class="purchase-details">
+                <div class="purchase-info">
+                    <div class="quantity-price">{{ purchase.quantity }}L × ₹{{ purchase.price_per_liter }}</div>
+                    <div class="purchase-time">{{ purchase.date.strftime('%I:%M %p') }}</div>
+                </div>
+                <div class="purchase-cost">₹{{ "%.2f"|format(purchase.total_cost) }}</div>
+            </div>
+            <div class="purchase-actions">
+                <a href="/edit/{{ purchase.id }}" class="btn-edit">Edit</a>
+                <form method="POST" action="/delete/{{ purchase.id }}" style="display: inline;" onsubmit="return confirm('Delete this purchase?')">
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🥛</div>
+            <p>No purchases yet</p>
+            <a href="/add" class="btn btn-primary">Add your first purchase!</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
