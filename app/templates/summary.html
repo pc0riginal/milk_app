@@ -47,8 +47,15 @@
     <h2>Cost Breakdown by Person</h2>
     {% for person, cost in person_costs.items() %}
     <div class="summary-item">
-        <span class="summary-label">{{ person }}</span>
-        <span class="summary-value">₹{{ "%.2f"|format(cost) }}</span>
+        <div>
+            <span class="summary-label">{{ person }}</span>
+            <span class="summary-value">₹{{ "%.2f"|format(cost) }}</span>
+        </div>
+        <form method="POST" action="/summary/toggle-payment/{{ person }}/{{ selected_month }}/{{ selected_year }}" style="display: inline;">
+            <button type="submit" class="btn {% if payment_statuses.get(person) %}btn-success{% else %}btn-warning{% endif %}" style="padding: 8px 16px; font-size: 0.85rem;">
+                {% if payment_statuses.get(person) %}✓ Paid{% else %}✗ Unpaid{% endif %}
+            </button>
+        </form>
     </div>
     {% endfor %}
 </div>
@@ -116,6 +123,23 @@
 {% endif %}
 
 <style>
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #333;
+    border: none;
+}
+
+.btn-success:hover, .btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
 .calendar-table {
     font-size: 0.75rem;
 }

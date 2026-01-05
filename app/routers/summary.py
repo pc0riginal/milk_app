@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import calendar
 from datetime import datetime
 
-from ..database import get_available_months, get_monthly_purchases
+from ..database import get_available_months, get_monthly_purchases, get_database
 from ..pdf_service_new import generate_monthly_pdf
+from bson import ObjectId
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -21,6 +22,7 @@ async def summary_page(request: Request, month_year: str = None):
             "total_quantity": 0,
             "total_cost": 0,
             "person_costs": {},
+            "payment_statuses": {},
             "available_months": [],
             "selected_month": None,
             "selected_year": None,
@@ -53,6 +55,17 @@ async def summary_page(request: Request, month_year: str = None):
                 person_costs[person] = 0
             person_costs[person] += cost
     
+    # Get payment status for each person
+    db = get_database()
+    payment_statuses = {}
+    for person in person_costs.keys():
+        status = await db.payment_status.find_one({
+            "person": person,
+            "month": selected_month,
+            "year": selected_year
+        })
+        payment_statuses[person] = status.get("paid", False) if status else False
+    
     # Generate calendar data
     calendar_data = generate_calendar_data(selected_year, selected_month, monthly_purchases)
     
@@ -62,6 +75,7 @@ async def summary_page(request: Request, month_year: str = None):
         "total_quantity": total_quantity,
         "total_cost": total_cost,
         "person_costs": person_costs,
+        "payment_statuses": payment_statuses,
         "available_months": available_months,
         "selected_month": selected_month,
         "selected_year": selected_year,
@@ -134,3 +148,29 @@ async def download_monthly_pdf(month_year: str = None):
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+@router.post("/toggle-payment/{person}/{month}/{year}")
+async def toggle_payment(person: str, month: int, year: int):
+    db = get_database()
+    status = await db.payment_status.find_one({
+        "person": person,
+        "month": month,
+        "year": year
+    })
+    
+    if status:
+        new_paid = not status.get("paid", False)
+        await db.payment_status.update_one(
+            {"_id": status["_id"]},
+            {"$set": {"paid": new_paid, "paid_date": datetime.now() if new_paid else None}}
+        )
+    else:
+        await db.payment_status.insert_one({
+            "person": person,
+            "month": month,
+            "year": year,
+            "paid": True,
+            "paid_date": datetime.now()
+        })
+    
+    return RedirectResponse(url=f"/summary?month_year={month}-{year}", status_code=303)

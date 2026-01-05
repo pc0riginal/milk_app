@@ -31,6 +31,20 @@ class Person(BaseModel):
     name: str
     email: Optional[str] = None
 
+class PaymentStatus(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str}
+    )
+    
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    person: str
+    month: int
+    year: int
+    paid: bool = False
+    paid_date: Optional[datetime] = None
+
 class Settings(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
