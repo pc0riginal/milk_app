@@ -22,6 +22,7 @@ async def summary_page(request: Request, month_year: str = None):
             "total_quantity": 0,
             "total_cost": 0,
             "person_costs": {},
+            "person_quantities": {},
             "payment_statuses": {},
             "available_months": [],
             "selected_month": None,
@@ -47,13 +48,17 @@ async def summary_page(request: Request, month_year: str = None):
     
     # Calculate cost per person
     person_costs = {}
+    person_quantities = {}
     for purchase in monthly_purchases:
         person = purchase.person
         cost = purchase.total_cost
+        quantity = purchase.quantity
         if person:
             if person not in person_costs:
                 person_costs[person] = 0
+                person_quantities[person] = 0
             person_costs[person] += cost
+            person_quantities[person] += quantity
     
     # Get payment status for each person
     db = get_database()
@@ -75,6 +80,7 @@ async def summary_page(request: Request, month_year: str = None):
         "total_quantity": total_quantity,
         "total_cost": total_cost,
         "person_costs": person_costs,
+        "person_quantities": person_quantities,
         "payment_statuses": payment_statuses,
         "available_months": available_months,
         "selected_month": selected_month,

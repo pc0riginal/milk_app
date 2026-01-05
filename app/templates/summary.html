@@ -49,6 +49,9 @@
     <div class="summary-item">
         <div>
             <span class="summary-label">{{ person }}</span>
+            <div style="font-size: 0.85rem; color: #6c757d; margin-top: 4px;">
+                {{ "%.1f"|format(person_quantities.get(person, 0)) }}L
+            </div>
             <span class="summary-value">₹{{ "%.2f"|format(cost) }}</span>
         </div>
         <form method="POST" action="/summary/toggle-payment/{{ person }}/{{ selected_month }}/{{ selected_year }}" style="display: inline;">
