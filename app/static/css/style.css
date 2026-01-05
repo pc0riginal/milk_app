@@ -9,6 +9,14 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     color: #333;
+    opacity: 0;
+    animation: fadeIn 0.3s ease-in forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
 }
 
 .container {
@@ -22,6 +30,18 @@ body {
     text-align: center;
     margin-bottom: 30px;
     color: white;
+    animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .header h1 {
@@ -39,7 +59,23 @@ body {
     border: 1px solid rgba(255,255,255,0.2);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
+    animation: slideUp 0.4s ease-out backwards;
 }
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
 
 .card:hover {
     transform: translateY(-5px);
@@ -161,6 +197,7 @@ body {
     border-radius: 15px;
     padding: 5px;
     margin-bottom: 20px;
+    animation: slideDown 0.4s ease-out;
 }
 
 .nav-tab {
@@ -170,13 +207,19 @@ body {
     border-radius: 10px;
     color: rgba(255,255,255,0.7);
     text-decoration: none;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+}
+
+.nav-tab:hover {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.9);
 }
 
 .nav-tab.active {
     background: white;
     color: #333;
     font-weight: 600;
+    transform: scale(1.05);
 }
 
 .person-tag {
@@ -252,7 +295,14 @@ body {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    animation: slideUp 0.4s ease-out backwards;
 }
+
+.purchase-item:nth-child(1) { animation-delay: 0.1s; }
+.purchase-item:nth-child(2) { animation-delay: 0.15s; }
+.purchase-item:nth-child(3) { animation-delay: 0.2s; }
+.purchase-item:nth-child(4) { animation-delay: 0.25s; }
+.purchase-item:nth-child(5) { animation-delay: 0.3s; }
 
 .purchase-item::before {
     content: '';
