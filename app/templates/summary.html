@@ -33,7 +33,7 @@
         <span class="summary-value">{{ monthly_purchases|length }}</span>
     </div>
     <div class="summary-item" style="border-bottom: none; padding-top: 20px;">
-        <a href="/download-pdf/{{ selected_month }}-{{ selected_year }}" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <a href="/summary/download-pdf?month_year={{ selected_month }}-{{ selected_year }}" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
             📄 Download PDF Summary
         </a>
     </div>
