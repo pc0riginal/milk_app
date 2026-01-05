@@ -5,7 +5,8 @@ from datetime import datetime
 
 from ..database import (
     get_daily_purchases, get_recent_purchases, create_purchase, 
-    get_people, get_milk_rate, get_purchase_by_id, update_purchase, delete_purchase
+    get_people, get_milk_rate, get_purchase_by_id, update_purchase, delete_purchase,
+    update_milk_rate
 )
 from ..models import PurchaseCreate
 
@@ -134,3 +135,8 @@ async def edit_purchase(
 async def delete_purchase_route(purchase_id: str):
     await delete_purchase(purchase_id)
     return RedirectResponse(url="/", status_code=303)
+
+@router.post("/settings")
+async def update_settings(milk_rate: float = Form(...)):
+    await update_milk_rate(milk_rate)
+    return RedirectResponse(url="/add", status_code=303)
