@@ -37,6 +37,12 @@
                 <div style="font-size: 0.9rem; color: #6c757d;">{{ person.email }}</div>
                 {% endif %}
             </div>
+            <div style="display: flex; gap: 5px;">
+                <a href="/people/edit/{{ person.id }}" class="btn-edit">Edit</a>
+                <form method="POST" action="/people/delete/{{ person.id }}" style="display: inline;" onsubmit="return confirm('Delete {{ person.name }}?');">
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </div>
         </div>
         {% endfor %}
     {% else %}

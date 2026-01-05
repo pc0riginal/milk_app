@@ -57,37 +57,40 @@
 {% if calendar_data %}
 <div class="card">
     <h2>Calendar View</h2>
-    <div class="calendar">
-        <div class="calendar-header">
-            <div class="calendar-day">Sun</div>
-            <div class="calendar-day">Mon</div>
-            <div class="calendar-day">Tue</div>
-            <div class="calendar-day">Wed</div>
-            <div class="calendar-day">Thu</div>
-            <div class="calendar-day">Fri</div>
-            <div class="calendar-day">Sat</div>
-        </div>
-        <div class="calendar-body">
-            {% for week in calendar_data %}
-            <div class="calendar-week">
-                {% for day in week %}
-                <div class="calendar-cell {% if day.purchases %}has-purchases{% endif %} {% if not day.in_month %}other-month{% endif %}">
-                    <div class="calendar-date">{{ day.day }}</div>
-                    {% if day.purchases %}
-                    <div class="calendar-purchases">
-                        {% for person, data in day.purchases.items() %}
-                        <div class="person-purchase" title="{{ person }}: {{ data.quantity }}L - ₹{{ data.cost }}">
-                            <span class="person-name">{{ person[:3] }}</span>
-                            <span class="purchase-amount">{{ data.quantity }}L</span>
+    <div class="table-responsive">
+        <table class="table table-bordered table-sm calendar-table">
+            <thead class="table-light">
+                <tr>
+                    <th class="text-center">Sun</th>
+                    <th class="text-center">Mon</th>
+                    <th class="text-center">Tue</th>
+                    <th class="text-center">Wed</th>
+                    <th class="text-center">Thu</th>
+                    <th class="text-center">Fri</th>
+                    <th class="text-center">Sat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in calendar_data %}
+                <tr>
+                    {% for day in week %}
+                    <td class="calendar-cell {% if day.purchases %}table-success{% endif %} {% if not day.in_month %}table-secondary{% endif %}">
+                        <div class="calendar-date">{{ day.day }}</div>
+                        {% if day.purchases %}
+                        <div class="calendar-purchases">
+                            {% for person, data in day.purchases.items() %}
+                            <div class="badge bg-primary text-truncate" title="{{ person }}: {{ data.quantity }}L - ₹{{ '%.2f'|format(data.cost) }}">
+                                {{ person[:3] }} {{ data.quantity }}L
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </div>
-            {% endfor %}
-        </div>
+            </tbody>
+        </table>
     </div>
 </div>
 {% endif %}
@@ -113,67 +116,27 @@
 {% endif %}
 
 <style>
-.calendar {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
+.calendar-table {
+    font-size: 0.75rem;
 }
 
-.calendar-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    background: #f8f9fa;
-}
-
-.calendar-day {
-    padding: 8px 4px;
-    text-align: center;
-    font-weight: bold;
-    border-right: 1px solid #ddd;
-    font-size: 11px;
-}
-
-.calendar-day:last-child {
-    border-right: none;
-}
-
-.calendar-body {
-    display: flex;
-    flex-direction: column;
-}
-
-.calendar-week {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+.calendar-table th {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
 
 .calendar-cell {
-    min-height: 60px;
-    padding: 4px 2px;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    position: relative;
-    font-size: 11px;
-}
-
-.calendar-cell:last-child {
-    border-right: none;
+    vertical-align: top;
+    padding: 0.25rem;
+    min-height: 50px;
+    height: 60px;
 }
 
 .calendar-date {
     font-weight: bold;
-    margin-bottom: 3px;
-    font-size: 12px;
-}
-
-.other-month {
-    background: #f8f9fa;
-    color: #6c757d;
-}
-
-.has-purchases {
-    background: #e8f5e8;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
 }
 
 .calendar-purchases {
@@ -182,50 +145,34 @@
     gap: 2px;
 }
 
-.person-purchase {
-    background: #007bff;
-    color: white;
-    padding: 2px 3px;
-    border-radius: 3px;
-    font-size: 9px;
-    display: flex;
-    justify-content: space-between;
-    cursor: pointer;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.person-name {
-    font-weight: bold;
-}
-
-.purchase-amount {
-    font-size: 8px;
+.calendar-purchases .badge {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+    max-width: 100%;
 }
 
 @media (min-width: 768px) {
-    .calendar-day {
-        padding: 10px;
-        font-size: 14px;
+    .calendar-table {
+        font-size: 0.9rem;
+    }
+    
+    .calendar-table th {
+        padding: 0.75rem;
+        font-size: 0.9rem;
     }
     
     .calendar-cell {
-        min-height: 80px;
-        padding: 5px;
-        font-size: 12px;
+        padding: 0.5rem;
+        height: 80px;
     }
     
     .calendar-date {
-        font-size: 14px;
+        font-size: 1rem;
     }
     
-    .person-purchase {
-        padding: 3px 5px;
-        font-size: 11px;
-    }
-    
-    .purchase-amount {
-        font-size: 10px;
+    .calendar-purchases .badge {
+        font-size: 0.75rem;
+        padding: 3px 6px;
     }
 }
 </style>
