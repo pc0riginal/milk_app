@@ -116,7 +116,8 @@
 .calendar {
     border: 1px solid #ddd;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .calendar-header {
@@ -126,10 +127,11 @@
 }
 
 .calendar-day {
-    padding: 10px;
+    padding: 8px 4px;
     text-align: center;
     font-weight: bold;
     border-right: 1px solid #ddd;
+    font-size: 11px;
 }
 
 .calendar-day:last-child {
@@ -147,11 +149,12 @@
 }
 
 .calendar-cell {
-    min-height: 80px;
-    padding: 5px;
+    min-height: 60px;
+    padding: 4px 2px;
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
     position: relative;
+    font-size: 11px;
 }
 
 .calendar-cell:last-child {
@@ -160,7 +163,8 @@
 
 .calendar-date {
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
+    font-size: 12px;
 }
 
 .other-month {
@@ -181,12 +185,14 @@
 .person-purchase {
     background: #007bff;
     color: white;
-    padding: 2px 4px;
+    padding: 2px 3px;
     border-radius: 3px;
-    font-size: 10px;
+    font-size: 9px;
     display: flex;
     justify-content: space-between;
     cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .person-name {
@@ -194,7 +200,33 @@
 }
 
 .purchase-amount {
-    font-size: 9px;
+    font-size: 8px;
+}
+
+@media (min-width: 768px) {
+    .calendar-day {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .calendar-cell {
+        min-height: 80px;
+        padding: 5px;
+        font-size: 12px;
+    }
+    
+    .calendar-date {
+        font-size: 14px;
+    }
+    
+    .person-purchase {
+        padding: 3px 5px;
+        font-size: 11px;
+    }
+    
+    .purchase-amount {
+        font-size: 10px;
+    }
 }
 </style>
 {% endblock %}

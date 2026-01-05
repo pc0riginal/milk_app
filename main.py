@@ -30,7 +30,9 @@ app = FastAPI(
     title="Milk Tracker App",
     description="Daily milk purchase tracking with cost calculation and bill splitting",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url=None,
+    redoc_url=None
 )
 
 # CORS middleware
@@ -55,4 +57,4 @@ app.include_router(summary.router, prefix="/summary")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, workers=1)

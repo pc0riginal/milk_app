@@ -4,6 +4,7 @@ from typing import List
 from datetime import datetime, timedelta
 from .models import Person, PurchaseCreate, Settings, Purchase
 from bson import ObjectId
+from .cache import get_cached_milk_rate, set_cached_milk_rate, clear_milk_rate_cache
 
 class Database:
     client: AsyncIOMotorClient = None
@@ -11,7 +12,13 @@ class Database:
 db = Database()
 
 async def connect_to_mongo():
-    db.client = AsyncIOMotorClient(os.getenv("MONGODB_URL"))
+    db.client = AsyncIOMotorClient(
+        os.getenv("MONGODB_URL"),
+        maxPoolSize=10,
+        minPoolSize=1,
+        maxIdleTimeMS=45000,
+        serverSelectionTimeoutMS=5000
+    )
     
 async def close_mongo_connection():
     db.client.close()
@@ -32,11 +39,15 @@ async def get_people():
     return people
 
 async def get_milk_rate():
+    cached = get_cached_milk_rate()
+    if cached is not None:
+        return cached
+    
     database = get_database()
     settings = await database.settings.find_one()
-    if settings:
-        return settings.get('milk_rate', 60.0)
-    return 60.0
+    rate = settings.get('milk_rate', 60.0) if settings else 60.0
+    set_cached_milk_rate(rate)
+    return rate
 
 async def update_milk_rate(rate: float):
     database = get_database()
@@ -45,6 +56,7 @@ async def update_milk_rate(rate: float):
         {"$set": {"milk_rate": rate}},
         upsert=True
     )
+    clear_milk_rate_cache()
 
 async def create_purchase(purchase_data: PurchaseCreate):
     # Get global milk rate if not provided
@@ -131,8 +143,7 @@ async def get_daily_purchases(date: datetime):
     purchases = []
     async for purchase in database.purchases.find({
         "date": {"$gte": start_date, "$lt": end_date}
-    }):
-        # Handle old schema with 'people' field
+    }).sort("date", -1):
         if 'person' not in purchase and 'people' in purchase:
             for person in purchase['people']:
                 new_purchase = {
@@ -159,8 +170,7 @@ async def get_monthly_purchases(year: int, month: int):
     purchases = []
     async for purchase in database.purchases.find({
         "date": {"$gte": start_date, "$lt": end_date}
-    }):
-        # Handle old schema with 'people' field
+    }).sort("date", -1):
         if 'person' not in purchase and 'people' in purchase:
             for person in purchase['people']:
                 new_purchase = {
